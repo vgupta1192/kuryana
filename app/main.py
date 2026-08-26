@@ -5,7 +5,8 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.lib.msgspec_json import MsgSpecJSONResponse
-from app.utils import fetch_func, search_func
+from app.utils import catalog_func, fetch_func, search_func
+
 
 app = FastAPI(
     title="Kuryana",
@@ -20,6 +21,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/catalog/{country}/{type_}/{sort}")
+async def catalog(
+    country: str, type_: str, sort: str, response: Response
+) -> Dict[str, Any]:
+    code, r = await catalog_func(country=country, type_=type_, sort=sort)
+    response.status_code = code
+    return r
 
 
 @app.get("/")
