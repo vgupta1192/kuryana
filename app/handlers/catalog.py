@@ -44,7 +44,7 @@ class Catalog(BaseSearch):
 
     @classmethod
     async def scrape_catalog(
-        cls: Type[T], country: str, type_: str, sort: str
+        cls: Type[T], country: str, type_: str, sort: str, page: int = 1
     ) -> T:
         co = COUNTRY_CODES.get(country.lower())
         ty = TYPE_CODES.get(type_.lower())
@@ -54,9 +54,12 @@ class Catalog(BaseSearch):
             # invalid params -- return a non-ok instance, caller handles the error
             return cls(None, f"{country}/{type_}/{sort}", 400, False)
 
+        if page < 1:
+            page = 1
+
         url = (
             f"{MYDRAMALIST_WEBSITE.rstrip('/')}/search"
-            f"?adv=titles&co={co}&ty={ty}&so={so}"
+            f"?adv=titles&co={co}&ty={ty}&so={so}&page={page}"
         )
 
         ok = True

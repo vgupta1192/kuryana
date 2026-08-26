@@ -35,9 +35,9 @@ async def search_func(query: str) -> Tuple[int, Dict[str, Any]]:
 
 # catalog / advanced-search browse function
 async def catalog_func(
-    country: str, type_: str, sort: str
+    country: str, type_: str, sort: str, page: int = 1
 ) -> Tuple[int, Dict[str, Any]]:
-    f = await Catalog.scrape_catalog(country=country, type_=type_, sort=sort)
+    f = await Catalog.scrape_catalog(country=country, type_=type_, sort=sort, page=page)
     if not f.ok:
         if f.status_code == 400:
             return f.status_code, error(

@@ -25,9 +25,9 @@ app.add_middleware(
 
 @app.get("/catalog/{country}/{type_}/{sort}")
 async def catalog(
-    country: str, type_: str, sort: str, response: Response
+    country: str, type_: str, sort: str, response: Response, page: int = 1
 ) -> Dict[str, Any]:
-    code, r = await catalog_func(country=country, type_=type_, sort=sort)
+    code, r = await catalog_func(country=country, type_=type_, sort=sort, page=page)
     response.status_code = code
     return r
 
