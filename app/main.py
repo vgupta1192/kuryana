@@ -99,13 +99,24 @@ async def mdlSeasonal(year: int, quarter: int) -> Any:
     # year -> ex. ... / 2019 / 2020 / 2021 / ...
     # quarter -> every 3 months (Jan-Mar=1, Apr-Jun=2, Jul-Sep=3, Oct-Dec=4)
     # --- seasonal information --- winter --- spring --- summer --- fall ---
-
     client = primp.Client(impersonate="chrome", impersonate_os="linux")
-
-    return client.post(
+    r = client.post(
         "https://mydramalist.com/v1/quarter_calendar",
         data={"quarter": quarter, "year": year},
-    ).json()
+    )
+    content_type = r.headers.get("content-type", "")
+    if r.status_code != 200 or "application/json" not in content_type:
+        return {
+            "error": "upstream_unavailable",
+            "message": (
+                "MyDramaList seasonal calendar API is no longer available "
+                "at this endpoint (v1/quarter_calendar). This appears to be "
+                "a discontinued upstream API, not a kuryana or deployment issue."
+            ),
+            "upstream_status": r.status_code,
+            "upstream_content_type": content_type,
+        }
+    return r.json()
 
 
 # get episode schedule
@@ -114,6 +125,20 @@ async def mdlSchedule(response: Response) -> Any:
     client = primp.Client(impersonate="chrome", impersonate_os="linux")
 
     r = client.post("https://mydramalist.com/v1/episode_calendar?lang=en-US")
+
+    content_type = r.headers.get("content-type", "")
+    if r.status_code != 200 or "application/json" not in content_type:
+        response.status_code = 502
+        return {
+            "error": "upstream_unavailable",
+            "message": (
+                "MyDramaList episode calendar API is no longer available "
+                "at this endpoint (v1/episode_calendar). This appears to be "
+                "a discontinued upstream API, not a kuryana or deployment issue."
+            ),
+            "upstream_status": r.status_code,
+            "upstream_content_type": content_type,
+        }
 
     response.status_code = r.status_code
     return r.json()
