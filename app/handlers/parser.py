@@ -2,11 +2,11 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Type, TypeVar, Union
 from urllib.parse import urljoin
 
-import primp
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 
 from app import MYDRAMALIST_WEBSITE
+from app.cfget import fetch_html
 
 T = TypeVar("T", bound="Parser")
 
@@ -47,18 +47,16 @@ class Parser:
         soup = None
 
         try:
-            client = primp.Client(impersonate="chrome", impersonate_os="linux")
-            resp = client.get(url)
+            # direct first, trawl (Cloudflare solver) on challenge
+            code, text = fetch_html(url)
 
             # set the main soup var
             soup = BeautifulSoup(
-                resp.text,
+                text,
                 "html.parser",  # use `lxml` parser for better speed
             )
 
-            # set the status code
-            code = resp.status_code
-            ok = resp.status_code == 200
+            ok = code == 200
 
         except Exception:
             ok = False

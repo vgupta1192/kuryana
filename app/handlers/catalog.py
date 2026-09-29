@@ -1,7 +1,7 @@
 from typing import Any, Optional, Type, TypeVar, Union
 from urllib.parse import urljoin
 
-import primp
+from app.cfget import fetch_html
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, ResultSet, Tag
 
@@ -66,11 +66,9 @@ class Catalog(BaseSearch):
         code = 500
         soup = None
         try:
-            client = primp.Client(impersonate="chrome", impersonate_os="linux")
-            resp = client.get(url)
-            soup = BeautifulSoup(resp.text, "html.parser")
-            code = resp.status_code
-            ok = resp.status_code == 200
+            code, text = fetch_html(url)
+            soup = BeautifulSoup(text, "html.parser")
+            ok = code == 200
         except Exception:
             ok = False
 
